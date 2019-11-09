@@ -55,7 +55,7 @@ public class ProducerTest {
         return send(record, null);
     }
 		// 向topic异步发送数据，当发送确认后唤起callback函数
-    @Override
+		@Override
     public Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback) {
         // intercept the record, which can be potentially modified; this method does not throw exceptions
         ProducerRecord<K, V> interceptedRecord = this.interceptors.onSend(record);
@@ -107,13 +107,13 @@ public class ProducerTest {
           //3. 获取该record的partition值
             int partition = partition(record, serializedKey, serializedValue, cluster);
             tp = new TopicPartition(record.topic(), partition);
-
             setReadOnly(record.headers());
             Header[] headers = record.headers().toArray();
 
             int serializedSize = AbstractRecords.estimateSizeInBytesUpperBound(apiVersions.maxUsableProduceMagic(),
                     compressionType, serializedKey, serializedValue, headers);
-            ensureValidRecordSize(serializedSize);
+            //如果record的字节超出限制或大于内存显示时，会抛出RecordTooLargeException
+          	ensureValidRecordSize(serializedSize);
             long timestamp = record.timestamp() == null ? time.milliseconds() : record.timestamp();
             log.trace("Sending record {} with callback {} to topic {} partition {}", record, callback, record.topic(), partition);
             // producer callback will make sure to call both 'callback' and interceptor callback
@@ -121,12 +121,14 @@ public class ProducerTest {
 
             if (transactionManager != null && transactionManager.isTransactional())
                 transactionManager.maybeAddPartitionToTransaction(tp);
-
+						//4.向Accumulator中追加数据
             RecordAccumulator.RecordAppendResult result = accumulator.append(tp, timestamp, serializedKey,
                     serializedValue, headers, interceptCallback, remainingWaitMs);
-            if (result.batchIsFull || result.newBatchCreated) {
+            //5.如果batch已经满了，唤醒sender线程发送数据
+          	if (result.batchIsFull || result.newBatchCreated) {
                 log.trace("Waking up the sender since topic {} partition {} is either full or getting a new batch", record.topic(), partition);
-                this.sender.wakeup();
+                //唤醒sender线程
+              	this.sender.wakeup();
             }
             return result.future;
             // handling exceptions and record the errors;
@@ -156,6 +158,70 @@ public class ProducerTest {
             // we notify interceptor about all exceptions, since onSend is called before anything else in this method
             this.interceptors.onSendError(record, tp, e);
             throw e;
+        }
+    }
+```
+
+根据以上代码分析，在`doSend()`方法中，一条Record数据的发送，可以分为以下几个步骤：
+
+1. 确认数据发送到topic的metadata是可用的(如果该partition的leader存在则是可用的)，如果没有topic的metadata信息，就需要获取相应的metadata.
+2. 序列化record的key和value
+3. 获取record发送到的partition
+4. 向accumulator中追加record数据，这个数据会先缓存到buffer
+5. 追加完数据后，如果达到batch.size的大小，则唤醒`sender`线程发送数据。
+
+### 发送过程详解
+
+#### 获取topic的metadata信息
+
+Producer通过`waitOnMetadata()`方法来获取对应topic的metadata信息。
+
+#### Key和Value的序列化
+
+Producer-client对record的`key`和`value`值进行序列化操作，而在`comsumer-client`中则进行反序列化。
+
+序列化和反序列化代码可以看`org.apache.kafka.common.serialization`下面的文件
+
+#### 获取partition值
+
+关于partition值的计算，主要分为以下三种情况：
+
+1. 用户指明了要使用的`parition`时，直接将用户指明的值作为parition
+2. 没指明`partition`值，有`key`值: 将`hash(key)%partition_num`的值作为parition
+3. 没指明`parition`、`key`值：第一次调用时随机生成一个整数（后面每次调用则在这个整数上自增)num, 将`num%parition_num`作为parition值（`round-robin算法`）
+
+在`producer-client`中，具体实现如下：
+
+```java
+    private int partition(ProducerRecord<K, V> record, byte[] serializedKey, byte[] serializedValue, Cluster cluster) {
+        Integer partition = record.partition();
+        return partition != null ?
+                partition :
+                partitioner.partition(
+                        record.topic(), record.key(), serializedKey, record.value(), serializedValue, cluster);
+      //若没指定parition,运行partitioner.partition
+    }
+```
+
+默认使用的方法`org.apache.kafka.clients.producer.internals.DefaultPartitioner`的`partition`
+
+```java
+    public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster) {
+        List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
+        int numPartitions = partitions.size();
+        if (keyBytes == null) {
+            int nextValue = nextValue(topic);
+            List<PartitionInfo> availablePartitions = cluster.availablePartitionsForTopic(topic);
+            if (availablePartitions.size() > 0) {
+                int part = Utils.toPositive(nextValue) % availablePartitions.size();
+                return availablePartitions.get(part).partition();
+            } else {
+                // no partitions are available, give a non-available partition
+                return Utils.toPositive(nextValue) % numPartitions;
+            }
+        } else {
+            // 将`hash(key)%partition_num`的值作为parition
+            return Utils.toPositive(Utils.murmur2(keyBytes)) % numPartitions;
         }
     }
 ```
