@@ -96,4 +96,31 @@ while(true){
 
 #### 2. 维护监视列表
 
-创建epoll对象之后
+创建epoll对象之后, 我们用`epoll_ctl()`来添加/删除要监听的socket. 也就是说, 内核会将`epoll`对象添加/删除到socket的等待队列中. 当socket收到数据之后, 中断程序会操作`eventpoll`对象, 而不是直接操作进程.
+
+#### 3. 接收数据
+
+当socket接收到数据之后, 中断程序会给`eventpoll`的就绪列表(aka, `rdlist`) 添加socket引用. 此外, 中断程序还会唤醒`eventpoll`等待队列中的进程.
+
+根据以上叙述, `epoll_wait`的语义是:首先, 将调用`epoll_wai()`的进程加入到`eventpoll`的等待队列中; 如果rdlist已经引用了socket, 那么`epoll_wait`则返回, 并唤醒等待队列中的进程; 如果`rdlist`为空, 则阻塞进程. 
+
+具体实现流程如下图所示:
+
+```mermaid
+sequenceDiagram
+title: epoll工作流程时序图
+process->>eventpoll:创建eventpoll对象(epoll_create)
+process->>sockets: 将eventpoll对象加入到每个socket的等待队列(epoll_ctl)
+sockets->>sockets: 等待接收数据
+sockets->>rdlist: 添加socket引用
+alt rdlist为空
+	process->>process: 阻塞(epoll_wait)
+else rdlist不为空
+	process->>rdlist: 获得socket引用
+	eventpoll->>process: 将进程从等待队列中释放
+end
+
+```
+
+
+
