@@ -119,6 +119,7 @@ else rdlist不为空
 	process->>rdlist: 获得socket引用
 	eventpoll->>process: 将进程从等待队列中释放
 end
+
 ```
 
 ## Epoll数据结构实现
