@@ -8,18 +8,18 @@ Student ID: 1155134484
 
 ## a)
 1. The basic information of the customer
-2. The list of coustomer who have borrowed money
+2. The list of customer who have borrowed money
 3. The financial information about the customer
 
 ## b) i)
-I will divide those data to two parts. one is for customers who have borrowed money, and the other is for the coustomers who haven't borrowed money. Beside, I will divide those data into traning data(70%) and testing data(30%).
+I will divide those data to two parts. one is for customers who have borrowed money, and the other is for the customers who haven't borrowed money. Beside, I will divide those data into training data(70%) and testing data(30%).
  
 ## b) ii)
 Whether have house, The age of the customer, the profession of the customer and the revenue of the customer.
 
 ## b) iii)
 Input: age\job\revenue
-Ouput: the probability of the customers will borrow money
+Output: the probability of the customers will borrow money
 
 ## b) iv)
 I will use the testing data to evaluate it. Beside, I will use accuracy, precision and recall to evaluate it.
@@ -32,36 +32,49 @@ The public dataset of lending club.
 # Question 2
 
 ## a)
-1. I will seprate those data into those four category 
+1. I will separate those data into those four category 
 2. 
 
 ## b)
-Your answer to Q2 b) ...
+1. I will separate those data into those four-category 
+2. For each category, I will separate those data into ten parts. Choose one as testing data and the rest as training data. Repeat this ten times. 
 
 ## c)
-Your answer to Q2 c) ...
+I will treat every three consecutive words of tokens as a feature. 
 
 ## d)
-Your answer to Q2 d) ...
+1. Logistic regression. Use the sigmoid function and adjust the value of parameters according to the minimum of the loss function. 
+2. Naive Bayes. Calculate the p(c) of each category. Then, get the value of vector w when p(c)*p(w|c) becomes maximum. 
 
 ## e) i)
-Your answer to Q2 e) i)...
+precision and recall
 
 ## e) ii)
-Your answer to Q2 e) ii)...
+For example, you have 100 photos and 10 photos represent dog. If you always output the negative value(means it is not a dog), you will receive the accuracy of 90%. Therefore, you cannot consider whether a model is bad or good only by the metrics of accuracy. 
 
 ====
 
 # Question 3
 
 ## a)
-Your answer to Q3 a) ...
+1. search for some public datasets on the Internet
+2. Separate it into training data and testing data
+3. Choose some models to training it.
+4. Use testing datasets to evaluate it.
+5. Compare results of each model and chose the one has excellent performance.
+6. Use the selected model to predict the user's attitude according to his/her comment.
 
-## b)
-Your answer to Q3 b) i)...
+## b) i)
+1. Memory-based. Directly use ratings from similar users or items. 
+2. Model-based. Mathematical models are used to represent users, items and their relations.
 
-## b)
-Your answer to Q3 b) ii)...
+## b) ii)
+Use MSE(Mean Squared Error) to evaluate the system. If you get following results:
+True:    8.3 3.2 6.3 5.3 7.9
+Predict: 8.1 3.5 6.2 5.1 8.1
+Then, you can calculate this by:
+ 1/5((0.2)*(0.2)+0.3*0.3+0.1*0.1+0.2*0.2+0.2*0.2) = 0.044
+
 
 ## c)
 Your answer to Q3 c) ...
@@ -81,10 +94,10 @@ This is mainly because each application must bind to a unique port.
 
 ## c)
 1. add a special string at the end of a message. The disadvantage of this approach is that you cannot promise which character will not be used in the message. 
-2. make the message in a fixed length. The disadvantage of this method is that you cannot determine the length of message. Too large may waste the spacem, too small may not enough to load the message.
+2. make the message in a fixed length. The disadvantage of this method is that you cannot determine the length of message. Too large may waste the space, too small may nsot enough to load the message.
 
 ## d)
-Firstly, you need to run a process as the gateway, which means any request from the client will be collected in this process. Then, the gateway publish requests from the client to a channel, and each server subscribe this channel. Therefore, the requests will be evently distributed to the active server programs.
+Firstly, you need to run a process as the gateway, which means any request from the client will be collected in this process. Then, the gateway publish requests from the client to a channel, and each server subscribe this channel. Therefore, the requests will be evenly distributed to the active server programs.
 
 ## e)
 Because of the Global Interpreter Lock(GIL), only one native thread can be executed in one interpreter process, even when the machine has multiple processors. Therefore, if use multi-threading, only one thread can be executed. However, if use multi-processing, each process will have one executed thread, which means we will have four thread running on the machine. Apparently, using multi-processing will be faster.   
