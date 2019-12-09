@@ -7,29 +7,33 @@ Student ID: 1155134484
 # Question 1
 
 ## a)
-Your answer to Q1 a) ...
+1. The basic information of the customer
+2. The list of coustomer who have borrowed money
+3. The financial information about the customer
 
 ## b) i)
-Your answer to Q1 b) i)...
-
+I will divide those data to two parts. one is for customers who have borrowed money, and the other is for the coustomers who haven't borrowed money. Beside, I will divide those data into traning data(70%) and testing data(30%).
+ 
 ## b) ii)
-Your answer to Q1 b) ii)...
+Whether have house, The age of the customer, the profession of the customer and the revenue of the customer.
 
 ## b) iii)
-Your answer to Q1 b) iii)...
+Input: age\job\revenue
+Ouput: the probability of the customers will borrow money
 
 ## b) iv)
-Your answer to Q1 b) iv)...
+I will use the testing data to evaluate it. Beside, I will use accuracy, precision and recall to evaluate it.
 
 ## C)
-Your answer to Q1 c)...
+The public dataset of lending club. 
 
 ====
 
 # Question 2
 
 ## a)
-Your answer to Q2 a) ...
+1. I will seprate those data into those four category 
+2. 
 
 ## b)
 Your answer to Q2 b) ...
@@ -67,20 +71,23 @@ Your answer to Q3 c) ...
 # Question 4
 
 ## a)
-Your answer to Q4 a) ...
+1. UDP have no pre-established connection, while TCP have it.
+2. UDP have no acknowledgment of packets received, but TPC have it.
+3. The packets of UDP are not numbered, but TPC have the sequence number.
 
 ## b)
-Your answer to Q4 b) ...
+Ports allow different applications running on the same computer to share a single physical link to the network. 
+This is mainly because each application must bind to a unique port.  
 
 ## c)
-Your answer to Q4 c) ...
+1. add a special string at the end of a message. The disadvantage of this approach is that you cannot promise which character will not be used in the message. 
+2. make the message in a fixed length. The disadvantage of this method is that you cannot determine the length of message. Too large may waste the spacem, too small may not enough to load the message.
 
 ## d)
-Your answer to Q4 d) ...
+Firstly, you need to run a process as the gateway, which means any request from the client will be collected in this process. Then, the gateway publish requests from the client to a channel, and each server subscribe this channel. Therefore, the requests will be evently distributed to the active server programs.
 
 ## e)
-Your answer to Q4 e) ...
+Because of the Global Interpreter Lock(GIL), only one native thread can be executed in one interpreter process, even when the machine has multiple processors. Therefore, if use multi-threading, only one thread can be executed. However, if use multi-processing, each process will have one executed thread, which means we will have four thread running on the machine. Apparently, using multi-processing will be faster.   
 
 ## f)
-Your answer to Q4 f) ...
-
+Imagining you have many time-consuming IO works, if you use sequential programming, you cannot launch another work until you finish the former one. Therefore, you have to pay much time on waiting. But, if you use asynchronous programming, you needn't wait the work be finished and you can do other work. When it finished, it will notify you.This means you can concurrently do works, and this will be faster. 
