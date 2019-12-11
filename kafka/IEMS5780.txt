@@ -32,8 +32,11 @@ The public dataset of lending club.
 # Question 2
 
 ## a)
-1. I will separate those data into those four category 
-2. 
+For document d, word w
+1. The number of times w appears in d
+2. The number of documents that contain w
+3. the product of Inverse Document Frequency and the number of times w appears in d(tfidf)
+tfidf will be useful for implementing the machine learning model. 
 
 ## b)
 1. I will separate those data into those four-category 
