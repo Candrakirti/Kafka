@@ -1,5 +1,5 @@
 Question 1
-a) 380 0 
+a) 23.75 0 
 b) A
 
 Question 2
@@ -9,7 +9,7 @@ candidate area extracted from the image.
 Fast R-CNN and Fast R-CNN: Faster R-CNN use Region Proposal Network(RPN) to replace the Selective Search used in fast R-CNN
 
 Question 3
-a) 7x7x96x96x400 = 180 633 600
+a) 7x7x90x90x400 = 158 760 000
 b) 90x90
 c) 10x10
 
